@@ -42,7 +42,7 @@
               </section>
               <section class="login_message">
                 <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha">
+                <img class="get_verification" src="http://localhost:4000/captcha" alt="captcha" @click="getCaptcha">
               </section>
             </section>
           </div>
@@ -65,7 +65,7 @@
   export default {
     data() {
       return {
-        loginWay: true,//true 短信登录 false 密码登录
+        loginWay: false,//true 短信登录 false 密码登录
         phone: '',
         computeTime: 0,
         showPwd: false,
@@ -147,7 +147,14 @@
       },
       closeTip() {
         this.alertShow = false
-        this.alertText=''
+        this.alertText = ''
+      },
+      //获取图形验证码
+      getCaptcha(event) {
+
+        event.target.src = 'http://localhost:4000/captcha?time=' + Date.now()
+
+
       }
     }
   }
