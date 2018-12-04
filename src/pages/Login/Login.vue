@@ -2,14 +2,14 @@
   <section class="loginContainer">
     <div class="loginInner">
       <div class="login_header">
-        <h2 class="login_logo">硅谷外卖</h2>
+        <h2 class="login_logo">外卖</h2>
         <div class="login_header_title">
           <a href="javascript:;" :class="{on:loginWay}" @click="loginWay=true">短信登录</a>
           <a href="javascript:;" :class="{on:!loginWay}" @click="loginWay=false">密码登录</a>
         </div>
       </div>
       <div class="login_content">
-        <form>
+        <form @submit.prevent="login">
           <div :class="{on:loginWay}">
             <section class="login_message">
               <input type="tel" maxlength="11" placeholder="手机号" v-model="phone">
@@ -18,7 +18,7 @@
               </button>
             </section>
             <section class="login_verification">
-              <input type="tel" maxlength="8" placeholder="验证码">
+              <input type="tel" maxlength="8" placeholder="验证码" v-model="code">
             </section>
             <section class="login_hint">
               温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
@@ -28,7 +28,7 @@
           <div :class="{on:!loginWay}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
+                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" v-model="name">
               </section>
               <section class="login_verification">
                 <input type="text" maxlength="8" placeholder="密码" v-if="showPwd" v-model="pwd">
@@ -41,7 +41,7 @@
 
               </section>
               <section class="login_message">
-                <input type="text" maxlength="11" placeholder="验证码">
+                <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
                 <img class="get_verification" src="./images/captcha.svg" alt="captcha">
               </section>
             </section>
@@ -54,10 +54,14 @@
         <i class="iconfont icon-jiantou2"></i>
       </a>
     </div>
+
+    <AlertTip :alertText="alertText" v-show="alertShow" @closeTip="closeTip"></AlertTip>
   </section>
 </template>
 
 <script>
+  import AlertTip from '../../components/AlertTip/AlertTip'
+
   export default {
     data() {
       return {
@@ -65,8 +69,17 @@
         phone: '',
         computeTime: 0,
         showPwd: false,
-        pwd: ''
+        pwd: '',
+        code: '',//验证码
+        name: '',//用户名
+        captcha: '',//图片验证码
+        alertText: '',//显示提示文本
+        alertShow: false,//是否显示
+
       }
+    },
+    components: {
+      AlertTip
     },
     computed: {
       rightPhone() {
@@ -90,6 +103,51 @@
 
         }
 
+      },
+
+      showAlert(str) {
+        this.alertShow = true
+        this.alertText = str
+      },
+
+      login() {
+        console.log('--->login')
+        if (this.loginWay) {
+          //短信登录
+          const {rightPhone, phone, code} = this
+          if (!rightPhone) {
+            //提示手机号不正确
+            this.showAlert('手机号不正确')
+          }
+          else if (!/^\d{6}/.test(code)) {
+            //code 不够6位数字
+            this.showAlert('不够6位数字')
+          }
+
+        }
+        else {
+          //密码登录
+          const {name, pwd, captcha} = this
+
+          if (!this.name) {
+            //用户名不能为空
+            this.showAlert('用户名不能为空')
+          }
+          else if (!this.pwd) {
+            //密码必须指定
+            this.showAlert('密码必须指定')
+          }
+          else if (!/^\d{6}/.test(this.captcha)) {
+            //captcha 必须是6位
+            this.showAlert('captcha 必须是6位')
+          }
+
+        }
+
+      },
+      closeTip() {
+        this.alertShow = false
+        this.alertText=''
       }
     }
   }
