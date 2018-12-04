@@ -61,11 +61,12 @@
 
 <script>
   import AlertTip from '../../components/AlertTip/AlertTip'
+  import {reqSendCode, reqSmsLogin, reqPwdLogin} from '../../api/index'
 
   export default {
     data() {
       return {
-        loginWay: false,//true 短信登录 false 密码登录
+        loginWay: true,//true 短信登录 false 密码登录
         phone: '',
         computeTime: 0,
         showPwd: false,
@@ -88,18 +89,33 @@
       }
     },
     methods: {
-      getCode() {
+      async getCode() {
         console.log('获取验证码')
         if (!this.computeTime) {
           this.computeTime = 10
-          const intervalId = setInterval(() => {
+          this.intervalId = setInterval(() => {
             this.computeTime--
             if (this.computeTime <= 0) {
-              clearInterval(intervalId)
+              clearInterval(this.intervalId)
             }
           }, 1000);
           //发送ajax 请求短信验证码
 
+          const result = await reqSendCode(this.phone)
+          console.log('==' + result)
+          if (result.code === 1) {
+            //失败
+            this.showAlert(result.msg)
+            //清除计时器
+            if (this.computeTime > 0) {
+              this.computeTime = 0
+              clearInterval(this.intervalId)
+              this.intervalId = undefined
+            }
+
+          } else {
+            console.log('==' + result.data)
+          }
 
         }
 
@@ -110,20 +126,24 @@
         this.alertText = str
       },
 
-      login() {
-        console.log('--->login')
+      async login() {
+        let result
         if (this.loginWay) {
           //短信登录
           const {rightPhone, phone, code} = this
           if (!rightPhone) {
             //提示手机号不正确
             this.showAlert('手机号不正确')
+            return
           }
           else if (!/^\d{6}/.test(code)) {
             //code 不够6位数字
             this.showAlert('不够6位数字')
+            return
           }
-
+          //发送短信登录
+          result = await reqSmsLogin(phone, code)
+          console.log('发送login 短信')
         }
         else {
           //密码登录
@@ -132,16 +152,39 @@
           if (!this.name) {
             //用户名不能为空
             this.showAlert('用户名不能为空')
+            return
           }
           else if (!this.pwd) {
             //密码必须指定
             this.showAlert('密码必须指定')
+            return
           }
-          else if (!/^\d{6}/.test(this.captcha)) {
+          else if (!this.captcha) {
             //captcha 必须是6位
-            this.showAlert('captcha 必须是6位')
+            this.showAlert('captcha 不能为空')
+            return
           }
+          console.log('密码登录1')
+          //发送密码登录
+          result = await reqPwdLogin({name, pwd, captcha})
+          console.log('密码登录2')
+        }
 
+        //清除定时器
+        if (this.computeTime > 0) {
+          clearInterval(this.intervalId)
+          this.computeTime = 0
+          this.intervalId = undefined
+        }
+
+        //集中处理结果
+        if (result.code === 0) {
+          const user = result.data
+
+          //跳转到个人中心页面
+          this.$router.replace('/profile')
+        } else {
+          this.showAlert(result.msg)
         }
 
       },
