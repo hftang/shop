@@ -2,7 +2,7 @@
   <section class="loginContainer">
     <div class="loginInner">
       <div class="login_header">
-        <h2 class="login_logo">外卖</h2>  
+        <h2 class="login_logo">外卖</h2>
         <div class="login_header_title">
           <a href="javascript:;" :class="{on:loginWay}" @click="loginWay=true">短信登录</a>
           <a href="javascript:;" :class="{on:!loginWay}" @click="loginWay=false">密码登录</a>
@@ -42,7 +42,8 @@
               </section>
               <section class="login_message">
                 <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
-                <img class="get_verification" src="http://localhost:4000/captcha" alt="captcha" @click="getCaptcha">
+                <img class="get_verification" src="http://localhost:4000/captcha" alt="captcha" @click="getCaptcha"
+                     ref="captcha">
               </section>
             </section>
           </div>
@@ -61,10 +62,10 @@
 
 <script>
   import AlertTip from '../../components/AlertTip/AlertTip'
-  import {reqSendCode, reqSmsLogin, reqPwdLogin} from '../../api/index'
+  import {reqPwdLogin, reqSendCode, reqSmsLogin} from '../../api/index'
 
   export default {
-    data() {
+    data () {
       return {
         loginWay: true,//true 短信登录 false 密码登录
         phone: '',
@@ -83,13 +84,13 @@
       AlertTip
     },
     computed: {
-      rightPhone() {
+      rightPhone () {
 
         return /^1\d{10}$/.test(this.phone)
       }
     },
     methods: {
-      async getCode() {
+      async getCode () {
         console.log('获取验证码')
         if (!this.computeTime) {
           this.computeTime = 10
@@ -98,7 +99,7 @@
             if (this.computeTime <= 0) {
               clearInterval(this.intervalId)
             }
-          }, 1000);
+          }, 1000)
           //发送ajax 请求短信验证码
 
           const result = await reqSendCode(this.phone)
@@ -121,12 +122,12 @@
 
       },
 
-      showAlert(str) {
+      showAlert (str) {
         this.alertShow = true
         this.alertText = str
       },
-
-      async login() {
+      //登录
+      async login () {
         let result
         if (this.loginWay) {
           //短信登录
@@ -164,10 +165,8 @@
             this.showAlert('captcha 不能为空')
             return
           }
-          console.log('密码登录1')
           //发送密码登录
           result = await reqPwdLogin({name, pwd, captcha})
-          console.log('密码登录2')
         }
 
         //清除定时器
@@ -181,23 +180,26 @@
         if (result.code === 0) {
           const user = result.data
 
+          //保存数据
+          this.$store.dispatch('recordUsetInfo', user)
+
           //跳转到个人中心页面
           this.$router.replace('/profile')
+
         } else {
+          //出错了刷新 重现生成图片二维码
+          this.getCaptcha()
           this.showAlert(result.msg)
         }
 
       },
-      closeTip() {
+      closeTip () {
         this.alertShow = false
         this.alertText = ''
       },
       //获取图形验证码
-      getCaptcha(event) {
-
-        event.target.src = 'http://localhost:4000/captcha?time=' + Date.now()
-
-
+      getCaptcha () {
+        this.$refs.captcha.src = 'http://localhost:4000/captcha?time=' + Date.now()
       }
     }
   }

@@ -19,11 +19,12 @@
       // this.$store.dispatch('getAddress')
      //这样调用
      this.getAddress()
+     this.getUseInfo()
    },
 
     methods:{
       //放在方法中
-      ...mapActions(['getAddress'])
+      ...mapActions(['getAddress','getUseInfo'])
     }
 
   }
