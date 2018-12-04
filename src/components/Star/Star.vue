@@ -5,10 +5,35 @@
 </template>
 
 <script>
+  const CLASS_ON = 'on'
+  const CLASS_OFF = 'off'
+  const CLASS_HALF = 'half'
   export default {
     props: {
       score: Number,
       size: Number
+    },
+    computed: {
+      starClasses() {
+        const {score} = this
+        const scs = []
+        //scs中添加 on
+        const scoreInteger = Math.floor(score)
+        for (let i = 0; i < scoreInteger; i++) {
+          scs.push(CLASS_ON)
+        }
+        //scs添加 half
+        if (score * 10 - scoreInteger * 10 >= 5) {
+          scs.push(CLASS_HALF)
+        }
+        //scs 添加 off
+        while (scs.length < 5) {
+          scs.push(CLASS_OFF)
+        }
+
+        return scs
+      }
+
     }
   }
 </script>
