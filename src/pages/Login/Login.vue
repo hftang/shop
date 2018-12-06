@@ -179,19 +179,15 @@
         //集中处理结果
         if (result.code === 0) {
           const user = result.data
-
           //保存数据
           this.$store.dispatch('recordUsetInfo', user)
-
           //跳转到个人中心页面
           this.$router.replace('/profile')
-
         } else {
           //出错了刷新 重现生成图片二维码
           this.getCaptcha()
           this.showAlert(result.msg)
         }
-
       },
       closeTip () {
         this.alertShow = false

@@ -1,8 +1,12 @@
 export default {
   latitude: 40.10038, // 纬度
   longitude: 116.36867, // 经度
-  address:{},
-  categorys:[],
-  shops:[],
-  userInfo:{},//保存用户信息
+  address: {},
+  categorys: [],
+  shops: [],
+  userInfo: {},//保存用户信息
+  //下面是shop
+  info: {},
+  goods: [],
+  ratings: []
 }
