@@ -55,25 +55,62 @@
 
 <script>
   import {mapState} from 'vuex'
+  import BScroll from 'better-scroll'
 
   export default {
-    data() {
+    data () {
       return {
-        scrollY: 0,
-        tops: []
+        scrollY: 0,//右侧滑动y坐标
+        tops: [],//右边li的top组成的数组
       }
     },
 
-    mounted() {
-      this.$store.dispatch('getGoods')
+    mounted () {
+      //传个内名函数作为钩子回调
+      this.$store.dispatch('getGoods', () => {
+        this.$nextTick(() => {
+          new BScroll('.menu-wrapper')
+          //接受Bscroller
+          const foods_scroll = new BScroll('.foods-wrapper', {
+            //设置配置参数
+            probeType: 2
+          })
+          //添加监听事件 和 回调方法
+          foods_scroll.on('scroll', ({x, y}) => {
+            console.log(y)
+            this.scrollY = Math.abs(y)
+          })
+          //
+          const tops = []
+          let top = 0
+          tops.push(top)
+          const lis = this.$refs.foodsUl.getElementsByClassName('food-list-hook')
+          Array.prototype.slice.call(lis).forEach(li => {
+            top += li.clientHeight
+            tops.push(top)
+          })
+          this.tops=tops
+
+
+        })
+      })
     },
     computed: {
       ...mapState(['goods']),
-      currentIndex() {
+      currentIndex () {
+        const {scrollY, tops} = this
+        console.log('--->scrollY:' + scrollY + 'tops:' + tops)
+        const index = tops.findIndex((top, index) => {
+          console.log('--->scrollY:' + scrollY + 'tops:' + tops)
+          return scrollY >= top && scrollY < tops[index + 1]
+        })
+
+        console.log('--->' + index)
+
+        return index
 
       }
     }
-
 
   }
 </script>
