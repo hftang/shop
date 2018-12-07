@@ -21,8 +21,7 @@
           <li class="food-list-hook" v-for="(good,index) in goods" :key="index">
             <h1 class="title">{{good.name}}</h1>
             <ul>
-              <li class="food-item bottom-border-1px" v-for="(food,index) in good.foods" :key="index"
-                  @click="showFood(food)">
+              <li class="food-item bottom-border-1px" v-for="(food,index) in good.foods" :key="index" @click="showFood(food)">
                 <div class="icon">
                   <img width="57" height="57" :src="food.icon">
                 </div>
@@ -38,7 +37,7 @@
                     <span class="old" v-if="food.oldPrice">￥{{food.oldPrice}}</span>
                   </div>
                   <div class="cartcontrol-wrapper">
-                    <!--<CartControl :food=food/>-->
+                    <CartControl :food="food"/>
                   </div>
                 </div>
               </li>
@@ -48,7 +47,7 @@
       </div>
       <!--<ShopCart/>-->
     </div>
-    <!--<Food :food="food" ref="food"/>-->
+    <Food :food="food" ref="food"/>
   </div>
 </template>
 
@@ -56,28 +55,43 @@
 <script>
   import {mapState} from 'vuex'
   import BScroll from 'better-scroll'
+  import CartControl from '../../../components/CartControl/CartControl'
+  import Food from '../../../components/Food/Food'
 
   export default {
-    data () {
+
+    components: {
+      CartControl,
+      Food,
+    },
+    data() {
       return {
         scrollY: 0,//右侧滑动y坐标
         tops: [],//右边li的top组成的数组
+        food: {},
       }
     },
 
-    mounted () {
+    mounted() {
       //传个内名函数作为钩子回调
       this.$store.dispatch('getGoods', () => {
         this.$nextTick(() => {
-          new BScroll('.menu-wrapper')
+          //左边menu
+          new BScroll('.menu-wrapper', {
+            click: true
+          })
           //接受Bscroller
-          const foods_scroll = new BScroll('.foods-wrapper', {
+          this.foods_scroll = new BScroll('.foods-wrapper', {
             //设置配置参数
-            probeType: 2
+            probeType: 2,
+            click: true
           })
           //添加监听事件 和 回调方法
-          foods_scroll.on('scroll', ({x, y}) => {
-            console.log(y)
+          this.foods_scroll.on('scroll', ({x, y}) => {
+            this.scrollY = Math.abs(y)
+          })
+          //惯性滑动时，停止时的监听
+          this.foods_scroll.on('scrollEnd', ({x, y}) => {
             this.scrollY = Math.abs(y)
           })
           //
@@ -89,25 +103,33 @@
             top += li.clientHeight
             tops.push(top)
           })
-          this.tops=tops
-
-
+          this.tops = tops
         })
       })
     },
     computed: {
       ...mapState(['goods']),
-      currentIndex () {
+      currentIndex() {
         const {scrollY, tops} = this
-        console.log('--->scrollY:' + scrollY + 'tops:' + tops)
         const index = tops.findIndex((top, index) => {
-          console.log('--->scrollY:' + scrollY + 'tops:' + tops)
           return scrollY >= top && scrollY < tops[index + 1]
         })
 
-        console.log('--->' + index)
-
         return index
+      }
+    },
+    methods: {
+      clickMenuItem(index) {
+        const y = this.tops[index]
+        this.scrollY = y //这样可以及时更新左边menu所在位置
+        this.foods_scroll.scrollTo(0, -y, 300)
+      },
+      showFood(food) {
+        //设置food
+        this.food=food
+        //显示food组件(在父组件中调用子组件的方法)
+        this.$refs.food.toggleShow()
+
 
       }
     }
