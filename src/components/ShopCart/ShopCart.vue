@@ -2,7 +2,7 @@
   <div>
     <div class="shopcart">
       <div class="content">
-        <div class="content-left">
+        <div class="content-left" @click="toggleShow">
           <div class="logo-wrapper">
             <div class="logo" :class="{highlight: totalCount}">
               <i class="iconfont icon-shopping_cart" :class="{highlight: totalCount}"></i>
@@ -20,10 +20,10 @@
         </div>
       </div>
       <transition name="move">
-        <div class="shopcart-list">
+        <div class="shopcart-list" v-if="listShow">
           <div class="list-header">
             <h1 class="title">购物车</h1>
-            <span class="empty">清空</span>
+            <span class="empty" @click="clearCart">清空</span>
           </div>
           <div class="list-content">
             <ul>
@@ -39,35 +39,83 @@
         </div>
       </transition>
     </div>
-    <!--<div class="list-mask"></div>-->
+    <div class="list-mask" v-if="listShow" @click="toggleShow"></div>
   </div>
 </template>
 
 <script>
   import {mapGetters, mapState} from 'vuex'
   import CartControl from '../CartControl/CartControl'
+  import BScroll from 'better-scroll'
+  import {MessageBox} from 'mint-ui'
 
   export default {
-    components:{
+    components: {
       CartControl
+    },
+    data() {
+      return {
+        isShow: false
+      }
+    },
+    methods: {
+      toggleShow() {
+        if (this.totalCount > 0) {
+          this.isShow = !this.isShow
+        }
+      },
+      clearCart(){
+        MessageBox.confirm('确认清空购物车吗？').then(action=>{
+            this.$store.dispatch('clearCart')
+        },
+        cannel=>{
+
+        }
+        )
+      }
     },
     computed: {
       ...mapState(['cartFoods', 'info']),
       ...mapGetters(['totalCount', 'totalPrice']),
 
-      payClass () {
+      listShow () {
+        // 如果总数量为0，直接不显示
+        if (this.totalCount==0) {
+          this.isShow = false
+          return false
+        } else {
+          if (this.isShow) {
+            this.$nextTick(() => {
+              // 防止创建多个BScroll，实现它的实例是一个单例
+              if (!this.scroll) {
+                this.scroll = new BScroll('.list-content',{
+                  click: true
+                })
+
+              } else {
+                // 刷新滚动条，重新统计内容高度
+                this.scroll.refresh()
+                console.log('shuaxin001')
+              }
+            })
+          }
+          return this.isShow
+        }
+      },
+
+      payClass() {
         const {totalPrice} = this
         const {minPrice} = this.info
         return totalPrice > minPrice ? 'enough' : 'not-enough'
       },
-      payText () {
+      payText() {
         const {totalPrice} = this
         const {minPrice} = this.info
         if (totalPrice === 0) {
           return `￥ ${minPrice}元起送`
         }
         else if (totalPrice < minPrice) {
-          return `还差￥${minPrice-totalPrice}元起送`
+          return `还差￥${minPrice - totalPrice}元起送`
         }
         else {
           return '去结算'

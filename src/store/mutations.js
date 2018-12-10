@@ -8,7 +8,8 @@ import {
   RECEIVE_USER_INFO,
   RESET_USER_INFO,
   INCREMENT_FOOD_COUNT,
-  DECREMENT_FOOD_COUNT
+  DECREMENT_FOOD_COUNT,
+  CLEAR_CART
 } from './mutation-type'
 
 import Vue from 'vue'
@@ -76,6 +77,16 @@ export default {
       }
     }
 
+
+  },
+  [CLEAR_CART](state) {
+    //先清除count
+    state.cartFoods.forEach(food => {
+      food.count = 0
+    })
+
+    //再次清除购物车
+    state.cartFoods = []
   }
 
 }

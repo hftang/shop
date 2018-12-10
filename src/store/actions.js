@@ -8,7 +8,8 @@ import {
   RECEIVE_USER_INFO,
   RESET_USER_INFO,
   INCREMENT_FOOD_COUNT,
-  DECREMENT_FOOD_COUNT
+  DECREMENT_FOOD_COUNT,
+  CLEAR_CART
 } from './mutation-type'
 
 import {
@@ -82,11 +83,15 @@ export default {
       fn && fn()  //回调
     }
   },
-  async getRatings({commit}) {
+
+  //传入回调
+  async getRatings({commit},callBack) {
     const result = await reqShopRatings()
     if (result.code === 0) {
       const ratings = result.data
       commit(RECEIVE_RATINGS, {ratings})
+
+      callBack&&callBack()
     }
   },
   async getShopInfo({commit}) {
@@ -107,5 +112,8 @@ export default {
       commit(DECREMENT_FOOD_COUNT, {food})
     }
 
+  },
+  clearCart({commit}) {
+    commit(CLEAR_CART)
   }
 }
