@@ -8,5 +8,6 @@ export default {
   //下面是shop
   info: {},
   goods: [],
-  ratings: []
+  ratings: [],
+  cartFoods:[]
 }
