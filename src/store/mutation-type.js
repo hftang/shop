@@ -14,3 +14,6 @@ export const DECREMENT_FOOD_COUNT='decrement_food_count'
 
 //清空购物车
 export  const CLEAR_CART='clear_cart'
+
+//搜素
+export const SEARCH_SHOPS='search_shops'

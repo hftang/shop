@@ -9,7 +9,7 @@ import {
   RESET_USER_INFO,
   INCREMENT_FOOD_COUNT,
   DECREMENT_FOOD_COUNT,
-  CLEAR_CART
+  CLEAR_CART, SEARCH_SHOPS
 } from './mutation-type'
 
 import Vue from 'vue'
@@ -87,6 +87,9 @@ export default {
 
     //再次清除购物车
     state.cartFoods = []
+  },
+  [SEARCH_SHOPS](state,{searchShops}){
+    state.searchShops=searchShops
   }
 
 }

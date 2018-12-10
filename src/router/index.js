@@ -3,8 +3,6 @@
  */
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import MSite from '../pages/MSite/MSite.vue'
-import Search from '../pages/Search/Search.vue'
 import Order from '../pages/Order/Order.vue'
 import Profile from '../pages/Profile/Profile.vue'
 import Login from '../pages/Login/Login.vue'
@@ -13,6 +11,11 @@ import Shop from '../pages/Shop/Shop'
 import ShopGoods from '../pages/Shop/ShopGoods/ShopGoods'
 import ShopRatings from '../pages/Shop/ShopRatings/ShopRatings'
 import ShopInfo from '../pages/Shop/ShopInfo/ShopInfo'
+// import MSite from '../pages/MSite/MSite.vue'
+//路由组件的懒加载
+const MSite = () => import('../pages/MSite/MSite.vue')
+// import Search from '../pages/Search/Search.vue'
+const Search = () => import('../pages/Search/Search.vue')
 
 // 声明使用插件
 Vue.use(VueRouter)
@@ -73,12 +76,11 @@ export default new VueRouter({
           component: ShopInfo
         },
         {
-          path:'',
-          redirect:'/shop/goods'
+          path: '',
+          redirect: '/shop/goods'
         }
 
       ]
-
 
     }
   ]
