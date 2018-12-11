@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div class="split"></div>
+      <div class="split"></div>shopr
 
       <div class="ratingselect">
         <div class="rating-type border-1px">
@@ -65,7 +65,7 @@
                   {{recommend}}
                 </span>
               </div>
-              <div class="time">{{rating.rateTime}}</div>
+              <div class="time">{{rating.rateTime|date-format}}</div>
             </div>
           </li>
         </ul>
@@ -79,6 +79,7 @@
   import Star from '../../../components/Star/Star.vue'
   import {mapState, mapGetters} from 'vuex'
   import BScroll from 'better-scroll'
+
 
   export default {
     data() {
